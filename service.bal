@@ -1,37 +1,17 @@
-
 import ballerina/http;
 
-configurable int port = 8080;
+# A service representing a network-accessible API
+# bound to port `9090`.
+service / on new http:Listener(9090) {
 
-type Album readonly & record {|
-    string id;
-    string title;
-    string artist;
-    decimal price;
-|};
-
-table<Album> key(id) albums = table [
-        {id: "1", title: "Blue Train", artist: "John Coltrane", price: 56.99},
-        {id: "2", title: "Jeru", artist: "Gerry Mulligan", price: 17.99},
-        {id: "3", title: "Sarah Vaughan and Clifford Brown", artist: "Sarah Vaughan", price: 39.99}
-    ];
-
-service / on new http:Listener(port) {
-    resource function get albums() returns Album[] {
-        return albums.toArray();
-    }
-
-    resource function get albums/[string id]() returns Album|http:NotFound {
-        Album? album = albums[id];
-        if album is () {
-            return http:NOT_FOUND;
-        } else {
-            return album;
+    # A resource for generating greetings
+    # + name - the input string name
+    # + return - string name with hello message or error
+    resource function get greeting(string name) returns string|error {
+        // Send a response back to the caller.
+        if name is "" {
+            return error("name should not be empty!");
         }
-    }
-
-    resource function post albums(@http:Payload Album album) returns Album {
-        albums.add(album);
-        return album;
+        return "Hello, " + name;
     }
 }
